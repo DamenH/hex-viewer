@@ -48,8 +48,8 @@
    * Updates the sizes of the top and bottom spacers.
    */
   function updateSizes() {
-    bottomSpacerHeight = Math.floor((items.length - currentEndIndex) / columns) * cellHeight;
     topSpacerHeight = Math.floor(currentStartIndex / columns) * cellHeight;
+    bottomSpacerHeight = Math.floor((items.length - currentEndIndex) / columns) * cellHeight;
   }
 
   /**
@@ -75,10 +75,9 @@
   beforeUpdate(() => {
     console.log(scrollValueDifference);
     previousScrollValue = dataGrid?.scrollTop ?? 0;
-
     // Hacky workaround that may shed light on the issue?
     // if (scrollValueDifference < 0) {
-    //     dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference / 4;
+    //     dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
     // }
   });
 
