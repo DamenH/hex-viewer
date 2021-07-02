@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CulledDataGrid from "./lib/CulledDataGrid.svelte";
+  import SmartDataGrid from "./lib/SmartDataGrid.svelte";
 
   let numColumns = 16;
   let numBytes = 65536;
@@ -7,7 +7,7 @@
 </script>
 
 <main>
-  <CulledDataGrid items={memoryArray} columns={numColumns} />
+  <SmartDataGrid items={memoryArray} columns={numColumns} />
 </main>
 
 <style>

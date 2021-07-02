@@ -6,13 +6,10 @@
   let currentStartIndex: number;
   let currentEndIndex: number;
   let height: number;
-  
+
   export let items: Array<number>;
   export let columns;
   export let cellHeight = 16.25;
-
-  // The space above and below the datagrid.
-  // export let inset = { top: 0, bottom: 0 };
 
   // The cells currently being rendered to the DOM.
   let visibleCells: Array<number> = [];
@@ -23,30 +20,9 @@
   let topSpacerHeight: number;
   let bottomSpacerHeight: number;
 
-  let absoluteScrollValue = 0;
-  let previousScrollValue = 0;
-  let scrollValueDifference = 0;
-
-  $: totalHeight = Math.ceil(items.length / columns) * cellHeight;
-
   onMount(async () => {
     updateVisibleCells();
     updateSizes();
-  });
-
-  beforeUpdate(() => {
-    console.log(scrollValueDifference);
-    previousScrollValue = dataGrid?.scrollTop ?? 0;
-
-    // Hacky workaround that may shed light on the issue?
-    // if (scrollValueDifference < 0 && scrollValueDifference % cellHeight == 0) {
-    //   dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
-    // }
-  });
-
-  afterUpdate(() => {
-    absoluteScrollValue = dataGrid?.scrollTop ?? 0;
-    scrollValueDifference = previousScrollValue - absoluteScrollValue;
   });
 
   function onScroll(event: Event) {
@@ -55,28 +31,17 @@
   }
 
   /**
-   * Returns the start and end indices of the visible cells of the data array.
-   */
-  function calculateVisibleIndices() {
-    let visibleAreaStart = dataGrid.scrollTop;
-    let visibleAreaEnd = dataGrid.scrollTop + height;
-    visibleAreaStart = Math.max(0, visibleAreaStart);
-
-    let startIndex = Math.floor(visibleAreaStart / cellHeight) * columns;
-    let endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
-    startIndex = Math.max(0, startIndex);
-    endIndex = Math.min(items.length, endIndex);
-
-    return { startIndex, endIndex };
-  }
-
-  /**
    * Updates the cells that are currently visible in the viewport.
    */
   function updateVisibleCells() {
-    const { startIndex, endIndex } = calculateVisibleIndices();
-    visibleCells = items.slice(startIndex, endIndex);
+    let visibleAreaStart = dataGrid.scrollTop;
+    let visibleAreaEnd = dataGrid.scrollTop + height;
+    let startIndex = Math.floor(visibleAreaStart / cellHeight) * columns;
+    let endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
+    endIndex = Math.min(items.length, endIndex);
+
     [currentStartIndex, currentEndIndex] = [startIndex, endIndex];
+    visibleCells = items.slice(startIndex, endIndex);
   }
 
   /**
@@ -102,6 +67,25 @@
     }
     console.log(JSON.stringify(output, null, 2));
   }
+
+  let currentScrollValue = 0;
+  let previousScrollValue = 0;
+  let scrollValueDifference = 0;
+
+  beforeUpdate(() => {
+    console.log(scrollValueDifference);
+    previousScrollValue = dataGrid?.scrollTop ?? 0;
+
+    // Hacky workaround that may shed light on the issue?
+    // if (scrollValueDifference < 0) {
+    //     dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference / 4;
+    // }
+  });
+
+  afterUpdate(() => {
+    currentScrollValue = dataGrid?.scrollTop ?? 0;
+    scrollValueDifference = previousScrollValue - currentScrollValue;
+  });
 </script>
 
 <svelte:window on:scroll|capture={onScroll} bind:innerHeight={height} />
