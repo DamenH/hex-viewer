@@ -27,14 +27,14 @@
     <h4>Weird Snapping</h4>
     <p>
       Even with this fix there is this weird snapping behavior that happens when the topmost element is removed from the
-      DOM. This can be prevented by setting the offset to greater than 25. This offset is added to the top spacer
-      element. I have correlated this to mean this behavior doesn't happen when the element being removed is visibile.
-      BUT ONLY WHEN GOING DOWN.
+      DOM. This can be prevented by setting the offset to greater than 25 for slow speeds and 50 for higher speeds. This
+      offset is added to the top spacer element. I have correlated this to mean this behavior doesn't happen when the
+      element being removed is visibile. BUT ONLY WHEN GOING DOWN.
     </p>
     <p>
-      What's perplexing is threefold. Neither of these issues only happen when scrolling down. Neither of these issues
-      happen when autoscrolling (but slow middle mouse down still does). And finally, neither of these issues happen in
-      Firefox regardless of the size of the offset, or use of hacky fix.
+      What's perplexing is fourfold. These issues only happen when scrolling down. The snapping doesn't happen with
+      autoscrolling (but infinite scroll does without hacky fix). Increasing the offset seems to prevent the infinite scrolling. Finally, these issues
+      don't seem to happen happen in Firefox regardless of the size of the offset, or use of the hacky fix.
     </p>
   </section>
   <section>
