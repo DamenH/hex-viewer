@@ -33,7 +33,7 @@
     </p>
     <p>
       What's perplexing is threefold. Neither of these issues only happen when scrolling down. Neither of these issues
-      happen when autoscrolling (but slow middle mouse down still does). And finally, none of these issues happen in
+      happen when autoscrolling (but slow middle mouse down still does). And finally, neither of these issues happen in
       Firefox regardless of the size of the offset, or use of hacky fix.
     </p>
   </section>
