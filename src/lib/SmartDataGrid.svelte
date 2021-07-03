@@ -9,14 +9,21 @@
 
   export let items: Array<number>;
   export let columns;
-  export let cellHeight = 16.25;
+  export let cellHeight = 21;
 
   // The cells currently being rendered to the DOM.
   let visibleCells: Array<number> = [];
+  let scrollDirection: "UP" | "DOWN";
+  let offset = 0;
 
-  // The space above and below the rendered data.
-  // Used to emulate a normal scrolling experience.
-  // Changes as you go up and down the data grid.
+  let autoScroll = false;
+  let preventBug = true;
+
+  /**
+   * The heights of the spaces above and below the rendered data.
+   * Used to emulate a normal scrolling experience. Values are
+   * updates as you go up and down the data grid.
+   */
   let topSpacerHeight: number;
   let bottomSpacerHeight: number;
 
@@ -25,7 +32,7 @@
     updateSizes();
   });
 
-  function onScroll(event: Event) {
+  async function onScroll(event: Event) {
     updateVisibleCells();
     updateSizes();
   }
@@ -40,6 +47,9 @@
     let endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
     endIndex = Math.min(items.length, endIndex);
 
+    scrollDirection = currentStartIndex < startIndex ? "UP" : "DOWN";
+    console.log(scrollDirection);
+
     [currentStartIndex, currentEndIndex] = [startIndex, endIndex];
     visibleCells = items.slice(startIndex, endIndex);
   }
@@ -48,7 +58,7 @@
    * Updates the sizes of the top and bottom spacers.
    */
   function updateSizes() {
-    topSpacerHeight = Math.floor(currentStartIndex / columns) * cellHeight;
+    topSpacerHeight = Math.floor(currentStartIndex / columns) * cellHeight + offset;
     bottomSpacerHeight = Math.floor((items.length - currentEndIndex) / columns) * cellHeight;
   }
 
@@ -73,24 +83,29 @@
   let scrollValueDifference = 0;
 
   beforeUpdate(() => {
-    console.log(scrollValueDifference);
+    // console.log(scrollValueDifference);
     previousScrollValue = dataGrid?.scrollTop ?? 0;
     // Hacky workaround that may shed light on the issue?
-    // if (scrollValueDifference < 0) {
-    //     dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
-    // }
+    if (preventBug && scrollValueDifference < 0) {
+      dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
+    }
   });
 
   afterUpdate(() => {
     currentScrollValue = dataGrid?.scrollTop ?? 0;
     scrollValueDifference = previousScrollValue - currentScrollValue;
   });
+
+  function autoScrolling() {
+    if (autoScroll) dataGrid.scrollTop += 1;
+    window.requestAnimationFrame(autoScrolling);
+  }
+  window.requestAnimationFrame(autoScrolling);
 </script>
 
 <svelte:window on:scroll|capture={onScroll} bind:innerHeight={height} />
 
 <div class="data-grid" bind:this={dataGrid}>
-  <button on:click={showVisibleCells} style="position:absolute; left: 450px;"> Visible Cells </button>
   <div class="data-grid-space" style="height: {topSpacerHeight}px;" />
   {#if visibleCells?.length}
     {#each Array(Math.ceil(visibleCells.length / columns)) as rIndex, i}
@@ -106,12 +121,40 @@
   <div class="data-grid-space" style="height: {bottomSpacerHeight}px;" />
 </div>
 
+<table>
+  <tr>
+    <td><button on:click={() => offset--}>Dec</button><button on:click={() => offset++}>Inc</button></td>
+    <td><input type="range" min="-50" max="50" bind:value={offset} name="offset" /></td>
+    <td><label for="offset">Top Offset: {offset}</label></td>
+    <td />
+  </tr>
+  <tr>
+    <td colspan="4">
+      <button on:click={() => (autoScroll = !autoScroll)}>Toggle</button> Autoscroll:
+      <span style="font-weight: bold;">{autoScroll}</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="4">
+      <button on:click={() => (preventBug = !preventBug)}>Toggle</button> Prevent Scroll Down Bug:
+      <span style="font-weight: bold;">{preventBug}</span>
+    </td>
+  </tr>
+</table>
+
+<!-- <input type="range" min="-50" max="50" bind:value={offset} name="offset" />
+<label for="offset">{offset}</label>
+<button on:click={() => offset--}>Dec</button>
+<button on:click={() => offset++}>Inc</button> -->
 <style scoped>
   .data-grid {
-    font-size: 14px;
-    font-family: Consolas;
-    width: 400px;
+    font-size: 17px;
+    font-family: Consolas, monospace;
+    width: min-content;
     height: 50vh;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
     overflow-y: scroll;
   }
 
