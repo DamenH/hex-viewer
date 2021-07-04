@@ -29,12 +29,13 @@
       Even with this fix there is this weird snapping behavior that happens when the topmost element is removed from the
       DOM. This can be prevented by setting the offset to greater than 25 for slow speeds and 50 for higher speeds. This
       offset is added to the top spacer element. I have correlated this to mean this behavior doesn't happen when the
-      element being removed is visibile. BUT ONLY WHEN GOING DOWN.
+      element being removed is visibile. But only when going down.
     </p>
     <p>
       What's perplexing is fourfold. These issues only happen when scrolling down. The snapping doesn't happen with
-      autoscrolling (but infinite scroll does without hacky fix). Increasing the offset seems to prevent the infinite scrolling. Finally, these issues
-      don't seem to happen happen in Firefox regardless of the size of the offset, or use of the hacky fix.
+      autoscrolling (but infinite scroll does without hacky fix). Increasing the offset seems to prevent the infinite
+      scrolling. Finally, these issues don't seem to happen happen in Firefox regardless of the size of the offset, or
+      use of the hacky fix.
     </p>
   </section>
   <section>
@@ -44,11 +45,15 @@
   </section>
 </main>
 
-<style scoped>
+<style>
+  :root {
+    margin: 0;
+    padding: 0;
+  }
   main {
     font-family: Arial, Helvetica, sans-serif;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     grid-template-areas:
       "description"
       "data-grid";
@@ -63,13 +68,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: max-content;
     grid-area: data-grid;
-    margin-left: 1rem;
+    padding-right: 0.5rem;
   }
 
   .description {
     grid-area: description;
-    padding-bottom: 2rem;
+    padding-right: 0.5rem;
   }
 </style>

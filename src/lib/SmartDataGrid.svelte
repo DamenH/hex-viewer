@@ -1,106 +1,106 @@
 <script lang="ts">
-  import { onMount, beforeUpdate, afterUpdate } from "svelte";
+import { onMount, beforeUpdate, afterUpdate } from "svelte";
 
-  let dataGrid: HTMLElement;
+let dataGrid: HTMLElement;
 
-  let currentStartIndex: number;
-  let currentEndIndex: number;
-  let height: number;
+let currentStartIndex: number;
+let currentEndIndex: number;
+let height: number;
 
-  export let items: Array<number>;
-  export let columns;
-  export let cellHeight = 21;
+export let items: Array<number>;
+export let columns;
+export let cellHeight = 21;
 
-  // The cells currently being rendered to the DOM.
-  let visibleCells: Array<number> = [];
-  let scrollDirection: "UP" | "DOWN";
-  let offset = 0;
+// The cells currently being rendered to the DOM.
+let visibleCells: Array<number> = [];
+let scrollDirection: "UP" | "DOWN";
+let offset = 0;
 
-  let autoScroll = false;
-  let preventBug = true;
+let autoScroll = false;
+let preventBug = true;
 
-  /**
-   * The heights of the spaces above and below the rendered data.
-   * Used to emulate a normal scrolling experience. Values are
-   * updates as you go up and down the data grid.
-   */
-  let topSpacerHeight: number;
-  let bottomSpacerHeight: number;
+/**
+ * The heights of the spaces above and below the rendered data.
+ * Used to emulate a normal scrolling experience. Values are
+ * updates as you go up and down the data grid.
+ */
+let topSpacerHeight: number;
+let bottomSpacerHeight: number;
 
-  onMount(async () => {
-    updateVisibleCells();
-    updateSizes();
-  });
+onMount(async () => {
+  updateVisibleCells();
+  updateSizes();
+});
 
-  async function onScroll(event: Event) {
-    updateVisibleCells();
-    updateSizes();
-  }
+async function onScroll(event: Event) {
+  updateVisibleCells();
+  updateSizes();
+}
 
-  /**
-   * Updates the cells that are currently visible in the viewport.
-   */
-  function updateVisibleCells() {
-    let visibleAreaStart = dataGrid.scrollTop;
-    let visibleAreaEnd = dataGrid.scrollTop + height;
-    let startIndex = Math.floor(visibleAreaStart / cellHeight) * columns;
-    let endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
-    endIndex = Math.min(items.length, endIndex);
+/**
+ * Updates the cells that are currently visible in the viewport.
+ */
+function updateVisibleCells() {
+  let visibleAreaStart = dataGrid.scrollTop;
+  let visibleAreaEnd = dataGrid.scrollTop + height;
+  let startIndex = Math.floor(visibleAreaStart / cellHeight) * columns;
+  let endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
+  endIndex = Math.min(items.length, endIndex);
 
-    scrollDirection = currentStartIndex < startIndex ? "UP" : "DOWN";
-    console.log(scrollDirection);
+  // scrollDirection = currentStartIndex < startIndex ? "UP" : "DOWN";
+  // console.log(scrollDirection);
 
-    [currentStartIndex, currentEndIndex] = [startIndex, endIndex];
-    visibleCells = items.slice(startIndex, endIndex);
-  }
+  [currentStartIndex, currentEndIndex] = [startIndex, endIndex];
+  visibleCells = items.slice(startIndex, endIndex);
+}
 
-  /**
-   * Updates the sizes of the top and bottom spacers.
-   */
-  function updateSizes() {
-    topSpacerHeight = Math.floor(currentStartIndex / columns) * cellHeight + offset;
-    bottomSpacerHeight = Math.floor((items.length - currentEndIndex) / columns) * cellHeight;
-  }
+/**
+ * Updates the sizes of the top and bottom spacers.
+ */
+function updateSizes() {
+  topSpacerHeight = Math.floor(currentStartIndex / columns) * cellHeight + offset;
+  bottomSpacerHeight = Math.floor((items.length - currentEndIndex) / columns) * cellHeight;
+}
 
-  /**
-   * Pretty prints the state of `visibleCells` into the console.
-   */
-  function showVisibleCells() {
-    let output: string[] = [];
-    let row = "";
-    for (let i = 0; i < visibleCells.length; i++) {
-      row += `0${visibleCells[i].toString(16).toUpperCase()} `.slice(-3);
-      if ((i + 1) % columns == 0) {
-        output.push(row.slice(0, row.length - 1));
-        row = "";
-      }
+/**
+ * Pretty prints the state of `visibleCells` into the console.
+ */
+function showVisibleCells() {
+  let output: string[] = [];
+  let row = "";
+  for (let i = 0; i < visibleCells.length; i++) {
+    row += `0${visibleCells[i].toString(16).toUpperCase()} `.slice(-3);
+    if ((i + 1) % columns == 0) {
+      output.push(row.slice(0, row.length - 1));
+      row = "";
     }
-    console.log(JSON.stringify(output, null, 2));
   }
+  console.log(JSON.stringify(output, null, 2));
+}
 
-  let currentScrollValue = 0;
-  let previousScrollValue = 0;
-  let scrollValueDifference = 0;
+let currentScrollValue = 0;
+let previousScrollValue = 0;
+let scrollValueDifference = 0;
 
-  beforeUpdate(() => {
-    // console.log(scrollValueDifference);
-    previousScrollValue = dataGrid?.scrollTop ?? 0;
-    // Hacky workaround that may shed light on the issue?
-    if (preventBug && scrollValueDifference < 0) {
-      dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
-    }
-  });
-
-  afterUpdate(() => {
-    currentScrollValue = dataGrid?.scrollTop ?? 0;
-    scrollValueDifference = previousScrollValue - currentScrollValue;
-  });
-
-  function autoScrolling() {
-    if (autoScroll) dataGrid.scrollTop += 1;
-    window.requestAnimationFrame(autoScrolling);
+beforeUpdate(() => {
+  // console.log(scrollValueDifference);
+  previousScrollValue = dataGrid?.scrollTop ?? 0;
+  // Hacky workaround that may shed light on the issue?
+  if (preventBug && scrollValueDifference < 0) {
+    dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
   }
+});
+
+afterUpdate(() => {
+  currentScrollValue = dataGrid?.scrollTop ?? 0;
+  scrollValueDifference = previousScrollValue - currentScrollValue;
+});
+
+function autoScrolling() {
+  if (autoScroll) dataGrid.scrollTop += 1;
   window.requestAnimationFrame(autoScrolling);
+}
+window.requestAnimationFrame(autoScrolling);
 </script>
 
 <svelte:window on:scroll|capture={onScroll} bind:innerHeight={height} />
@@ -124,9 +124,12 @@
 <table>
   <tr>
     <td><button on:click={() => offset--}>Dec</button><button on:click={() => offset++}>Inc</button></td>
-    <td><input type="range" min="-50" max="50" bind:value={offset} name="offset" /></td>
-    <td><label for="offset">Top Offset: {offset}</label></td>
-    <td />
+    <td>
+      <input type="range" min="-50" max="50" bind:value={offset} name="offset" />
+      <label for="offset">
+        Top Offset:{offset}
+      </label>
+    </td>
   </tr>
   <tr>
     <td colspan="4">
@@ -147,34 +150,36 @@
 <button on:click={() => offset--}>Dec</button>
 <button on:click={() => offset++}>Inc</button> -->
 <style scoped>
-  .data-grid {
-    font-size: 17px;
-    font-family: Consolas, monospace;
-    width: min-content;
-    height: 50vh;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-    border-left: 1px solid black;
-    overflow-y: scroll;
-  }
+.data-grid {
+  font-size: 16px;
+  font-family: Consolas, monospace;
+  height: 50vh;
+  width: 100%;
+  max-width: 400px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-left: 1px solid black;
+  overflow-y: scroll;
+  /* scroll-behavior: smooth; */
+}
 
-  .data-grid-space {
-    width: 100%;
-  }
+.data-grid-space {
+  width: 100%;
+}
 
-  .data-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    width: 100%;
-  }
+.data-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+}
 
-  .row-item {
-    margin-right: 0.25rem;
-    margin-left: 0.25rem;
-  }
+/* .row-item {
+    margin-right: 0.15rem;
+    margin-left: 0.15rem;
+  } */
 
-  .row-item:nth-child(1) {
-    margin-left: 0.5rem;
-  }
+.row-item:nth-child(1) {
+  margin-left: 0.15rem;
+}
 </style>
