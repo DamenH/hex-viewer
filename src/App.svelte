@@ -34,7 +34,7 @@
     <p>
       What's perplexing is fourfold. These issues only happen when scrolling down. The snapping doesn't happen with
       autoscrolling (but infinite scroll does without hacky fix). Increasing the offset seems to prevent the infinite
-      scrolling. Finally, these issues don't seem to happen happen in Firefox regardless of the size of the offset, or
+      scrolling. Finally, these issues don't seem to happen in Firefox regardless of the size of the offset, or
       use of the hacky fix.
     </p>
   </section>
