@@ -9,7 +9,7 @@ let height: number;
 
 export let items: Array<number>;
 export let columns;
-export let cellHeight = 21;
+export let cellHeight = 19;
 
 // The cells currently being rendered to the DOM.
 let visibleCells: Array<number> = [];
