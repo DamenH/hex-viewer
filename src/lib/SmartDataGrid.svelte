@@ -92,7 +92,7 @@ afterUpdate(() => {
 .data-grid {
   font-size: 16px;
   font-family: Consolas, monospace;
-  height: 50vh;
+  height: 96vh;
   width: 100%;
   max-width: 400px;
   border-top: 1px solid black;
