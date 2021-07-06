@@ -1,43 +1,14 @@
 <script lang="ts">
-  import SmartDataGrid from "./lib/SmartDataGrid.svelte";
+import SmartDataGrid from "./lib/SmartDataGrid.svelte";
 
-  let numColumns = 16;
-  let numBytes = 65536;
-  $: memoryArray = new Array(numBytes).fill(0).map(() => Math.floor(Math.random() * 255));
+let numColumns = 16;
+let numBytes = 65536;
+$: memoryArray = new Array(numBytes)
+  .fill(0)
+  .map(() => Math.floor(Math.random() * 255));
 </script>
 
 <main>
-  <section class="description">
-    <h3>Description</h3>
-    <p>
-      <a href="//github.com/DamenH/hex-viewer/blob/master/src/lib/SmartDataGrid.svelte">This</a> component is able to display
-      arbitrarily large arrays of hex values (on the order of 10s of millions). It does this by only rendering to the DOM
-      the cells that are currently visible. A traditional scroll experience is emulated by including spacer elements above
-      and below the visible cells, as well as recalculating the currently visible cells as the component is scrolled.
-    </p>
-    <h3>Problems</h3>
-    <h4>
-      <a href="//github.com/DamenH/hex-viewer/blob/master/src/lib/SmartDataGrid.svelte#L89">Infinite Scroll Bug</a>
-    </h4>
-    <p>
-      Without the hacky fix linked above, upon scrolling down the component will undergo rapid and uncontrolled infinite
-      scrolling that is multiplied by the scroll "momentum". This behavior can be seen by setting the prevent scroll bug
-      to false.
-    </p>
-    <h4>Weird Snapping</h4>
-    <p>
-      Even with this fix there is this weird snapping behavior that happens when the topmost element is removed from the
-      DOM. This can be prevented by setting the offset to greater than 25 for slow speeds and 50 for higher speeds. This
-      offset is added to the top spacer element. I have correlated this to mean this behavior doesn't happen when the
-      element being removed is visibile. But only when going down.
-    </p>
-    <p>
-      What's perplexing is fourfold. These issues only happen when scrolling down. The snapping doesn't happen with
-      autoscrolling (but infinite scroll does without hacky fix). Increasing the offset seems to prevent the infinite
-      scrolling. Finally, these issues don't seem to happen in Firefox regardless of the size of the offset, or
-      use of the hacky fix.
-    </p>
-  </section>
   <section>
     <div class="data-grid">
       <SmartDataGrid bind:items={memoryArray} columns={numColumns} />
@@ -46,34 +17,25 @@
 </main>
 
 <style>
-  :root {
-    margin: 0;
-    padding: 0;
-  }
-  main {
-    font-family: Arial, Helvetica, sans-serif;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    grid-template-areas:
-      "description"
-      "data-grid";
-  }
+:root {
+  margin: 0;
+  padding: 0;
+}
+main {
+  font-family: Arial, Helvetica, sans-serif;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-areas:
+    "description"
+    "data-grid";
+}
 
-  p {
-    text-align: justify;
-    text-justify: inter-word;
-  }
-  .data-grid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    grid-area: data-grid;
-    padding-right: 0.5rem;
-  }
-
-  .description {
-    grid-area: description;
-    padding-right: 0.5rem;
-  }
+.data-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  grid-area: data-grid;
+  padding-right: 0.5rem;
+}
 </style>

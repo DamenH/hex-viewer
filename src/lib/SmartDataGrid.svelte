@@ -3,8 +3,8 @@ import { onMount, beforeUpdate, afterUpdate } from "svelte";
 
 let dataGrid: HTMLElement;
 
-let currentStartIndex: number;
-let currentEndIndex: number;
+let startIndex: number;
+let endIndex: number;
 let height: number;
 
 export let items: Array<number>;
@@ -13,11 +13,7 @@ export let cellHeight = 19;
 
 // The cells currently being rendered to the DOM.
 let visibleCells: Array<number> = [];
-let scrollDirection: "UP" | "DOWN";
-let offset = 0;
 
-let autoScroll = false;
-let preventBug = true;
 
 /**
  * The heights of the spaces above and below the rendered data.
@@ -43,14 +39,13 @@ async function onScroll(event: Event) {
 function updateVisibleCells() {
   let visibleAreaStart = dataGrid.scrollTop;
   let visibleAreaEnd = dataGrid.scrollTop + height;
-  let startIndex = Math.floor(visibleAreaStart / cellHeight) * columns;
-  let endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
+  startIndex = Math.floor(visibleAreaStart / cellHeight) * columns;
+  endIndex = Math.ceil(visibleAreaEnd / cellHeight) * columns;
   endIndex = Math.min(items.length, endIndex);
 
   // scrollDirection = currentStartIndex < startIndex ? "UP" : "DOWN";
   // console.log(scrollDirection);
 
-  [currentStartIndex, currentEndIndex] = [startIndex, endIndex];
   visibleCells = items.slice(startIndex, endIndex);
 }
 
@@ -58,49 +53,20 @@ function updateVisibleCells() {
  * Updates the sizes of the top and bottom spacers.
  */
 function updateSizes() {
-  topSpacerHeight = Math.floor(currentStartIndex / columns) * cellHeight + offset;
-  bottomSpacerHeight = Math.floor((items.length - currentEndIndex) / columns) * cellHeight;
+  topSpacerHeight = Math.floor(startIndex / columns) * cellHeight;
+  bottomSpacerHeight =
+    Math.floor((items.length - endIndex) / columns) * cellHeight;
 }
 
-/**
- * Pretty prints the state of `visibleCells` into the console.
- */
-function showVisibleCells() {
-  let output: string[] = [];
-  let row = "";
-  for (let i = 0; i < visibleCells.length; i++) {
-    row += `0${visibleCells[i].toString(16).toUpperCase()} `.slice(-3);
-    if ((i + 1) % columns == 0) {
-      output.push(row.slice(0, row.length - 1));
-      row = "";
-    }
-  }
-  console.log(JSON.stringify(output, null, 2));
-}
-
-let currentScrollValue = 0;
-let previousScrollValue = 0;
-let scrollValueDifference = 0;
+let previousScrollValue: number;
 
 beforeUpdate(() => {
-  // console.log(scrollValueDifference);
-  previousScrollValue = dataGrid?.scrollTop ?? 0;
-  // Hacky workaround that may shed light on the issue?
-  if (preventBug && scrollValueDifference < 0) {
-    dataGrid.scrollTop = dataGrid.scrollTop + scrollValueDifference;
-  }
+  previousScrollValue = dataGrid?.scrollTop;
 });
 
 afterUpdate(() => {
-  currentScrollValue = dataGrid?.scrollTop ?? 0;
-  scrollValueDifference = previousScrollValue - currentScrollValue;
+  dataGrid.scrollTop = previousScrollValue;
 });
-
-function autoScrolling() {
-  if (autoScroll) dataGrid.scrollTop += 1;
-  window.requestAnimationFrame(autoScrolling);
-}
-window.requestAnimationFrame(autoScrolling);
 </script>
 
 <svelte:window on:scroll|capture={onScroll} bind:innerHeight={height} />
@@ -112,7 +78,9 @@ window.requestAnimationFrame(autoScrolling);
       <span class="data-row">
         {#each Array(columns) as cIndex, j}
           <span class="row-item">
-            {`0${visibleCells[i * columns + j].toString(16).toUpperCase()}`.slice(-2)}
+            {`0${visibleCells[i * columns + j]
+              .toString(16)
+              .toUpperCase()}`.slice(-2)}
           </span>
         {/each}
       </span>
@@ -121,34 +89,6 @@ window.requestAnimationFrame(autoScrolling);
   <div class="data-grid-space" style="height: {bottomSpacerHeight}px;" />
 </div>
 
-<table>
-  <tr>
-    <td><button on:click={() => offset--}>Dec</button><button on:click={() => offset++}>Inc</button></td>
-    <td>
-      <input type="range" min="-50" max="50" bind:value={offset} name="offset" />
-      <label for="offset">
-        Top Offset:{offset}
-      </label>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="4">
-      <button on:click={() => (autoScroll = !autoScroll)}>Toggle</button> Autoscroll:
-      <span style="font-weight: bold;">{autoScroll}</span>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="4">
-      <button on:click={() => (preventBug = !preventBug)}>Toggle</button> Prevent Scroll Down Bug:
-      <span style="font-weight: bold;">{preventBug}</span>
-    </td>
-  </tr>
-</table>
-
-<!-- <input type="range" min="-50" max="50" bind:value={offset} name="offset" />
-<label for="offset">{offset}</label>
-<button on:click={() => offset--}>Dec</button>
-<button on:click={() => offset++}>Inc</button> -->
 <style scoped>
 .data-grid {
   font-size: 16px;
@@ -173,11 +113,6 @@ window.requestAnimationFrame(autoScrolling);
   justify-content: space-evenly;
   width: 100%;
 }
-
-/* .row-item {
-    margin-right: 0.15rem;
-    margin-left: 0.15rem;
-  } */
 
 .row-item:nth-child(1) {
   margin-left: 0.15rem;
