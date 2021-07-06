@@ -14,7 +14,6 @@ export let cellHeight = 19;
 // The cells currently being rendered to the DOM.
 let visibleCells: Array<number> = [];
 
-
 /**
  * The heights of the spaces above and below the rendered data.
  * Used to emulate a normal scrolling experience. Values are
