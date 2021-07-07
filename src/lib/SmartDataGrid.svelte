@@ -200,6 +200,8 @@ afterUpdate(() => {
   max-width: 400px;
   position: relative;
   user-select: none;
+  border: solid black 1px;
+  border-right: none;
 }
 .scrollbar {
   height: 101%;
