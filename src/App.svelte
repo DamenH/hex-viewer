@@ -9,28 +9,11 @@ $: memoryArray = new Array(numBytes)
 </script>
 
 <main>
-  <section>
-    <div class="data-grid">
-      <SmartDataGrid bind:items={memoryArray} columns={numColumns} />
-    </div>
-  </section>
+  <SmartDataGrid bind:items={memoryArray} columns={numColumns} />
 </main>
 
-<style>
-:root {
-  margin: 0;
-  padding: 0;
-}
+<style scoped>
 main {
-  font-family: Arial, Helvetica, sans-serif;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  grid-template-areas:
-    "description"
-    "data-grid";
-}
-
-.data-grid {
   display: flex;
   flex-direction: column;
   align-items: center;
