@@ -1,24 +1,31 @@
 <script lang="ts">
-import SmartDataGrid from "./lib/SmartDataGrid.svelte";
-
-let numColumns = 16;
-let numBytes = 65536;
-$: memoryArray = new Array(numBytes)
-  .fill(0)
-  .map(() => Math.floor(Math.random() * 255));
+import HexViewer from "./lib/HexViewer.svelte";
 </script>
 
 <main>
-  <SmartDataGrid bind:items={memoryArray} columns={numColumns} />
+  <HexViewer />
 </main>
 
-<style scoped>
+<style global>
+html,
+body {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  transform: rotateY(0.0deg) rotateX(-0.0deg);
+}
+body {
+  background-color: hsl(0, 0%, 73%);
+}
 main {
+  font-size: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  grid-area: data-grid;
-  padding-right: 0.5rem;
+}
+
+form {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 10px;
 }
 </style>
